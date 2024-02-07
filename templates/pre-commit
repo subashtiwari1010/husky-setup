@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+ALLOWED_BRANCHES="staging|master|main|develop"
+REGEX="^(feat|fix|chore|docs|test|style|refactor|perf|build|ci|revert|prd|hotfix|asap)/.{1,}$"
+
+if echo "$BRANCH" | grep -Eq "$ALLOWED_BRANCHES"; then
+  echo $'\e[1;36m Skipping branch check for \e[0m'$'\e[1;31m'$BRANCH$'\e[0m \e[1;36mbranch\e[0m.\n'
+  exit 0
+fi
+if ! echo "$BRANCH" | grep -Eq "$REGEX"; then
+  echo $'\n\e[1;31m Your commit was rejected due to branching name.\e[0m\n'
+  echo $'\e[1;36mPlease rename your branch starting with prefix-\e[0m \e[36m\nfeat|fix|chore|docs|test|style|refactor|perf|build|ci|revert|prd|hotfix|asap)\nfollowed by "/" and separated by "-".\e[0m \nfor example: \e[1;42mfeat/check-branch-name\e[0m\n'
+  exit 1
+fi
+
+npx lint-staged || yarn lint-staged
